@@ -9,8 +9,8 @@
 
     <div class="chatWrapper">
       <div class="instruct" >您的指令是： <span >{{textData}}</span>
-        <v-md-editor v-model="textRes" height="400px" />
-<!--        <v-md-preview :text="textRes" />-->
+<!--        <v-md-editor v-model="textRes" height="400px" />-->
+        <v-md-preview :text="textRes" />
       </div>
       <canvas ref="canvas" class="canvas"></canvas>
 
