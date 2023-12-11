@@ -5,6 +5,7 @@
       class="dialogWrapper"
       @close="handleClose"
   >
+    <wake-up @wakeUp="handleChat"/>
 
     <div class="chatWrapper">
       <div class="instruct" >您的指令是： <span >{{textData}}</span>
@@ -45,6 +46,7 @@ import mp3 from './1.mp3'
 import IatRecorder from '@/utils/IatRecorder.js'
 import axios from "axios";
 import XunfeiReader from '@/utils/js/index'
+import WakeUp from "@/views/chatComponents/wakeUp.vue";
 defineOptions({
   name: 'VoiceChat',
 })
@@ -81,6 +83,19 @@ const startListen = ()=>{
       clearInterval(count)
     }
   }, 1000)
+  iatRecorder.onWillStatusChange = function(oldStatus, newStatus){
+    if(newStatus==='end') {
+      console.log('结束听写', this.text)
+      askWenxin(this.text)
+    }
+  }
+  // iatRecorder.onTextChange = function (text) {
+  //   console.log('text-----------', text)
+  //   let inputText = text
+  //   textData.value = inputText.substring(0, inputText.length - 1) //文字处理，因为不知道为什么识别输出的后面都带‘。’，这个方法是去除字符串最后一位
+  //   iatRecorder.stop()
+  //   askWenxin(text)
+  // }
 }
 // 录音结束
 const startListenT = () => {

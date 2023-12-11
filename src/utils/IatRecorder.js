@@ -267,7 +267,7 @@ class IatRecorder {
         language: this.language, //小语种可在控制台--语音听写（流式）--方言/语种处添加试用
         domain: 'iat', // 日常用语
         accent: this.accent, //中文方言可在控制台--语音听写（流式）--方言/语种处添加试用
-        vad_eos: 5000,
+        vad_eos: 1500,
         dwa: 'wpgs', //为使该功能生效，需到控制台开通动态修正功能（该功能免费）
       },
       data: {
@@ -371,7 +371,7 @@ class IatRecorder {
   onWillStatusChange = function (oldStatus, newStatus){
     console.log(newStatus, 'onWillStatusChange')
     this.statusJudge = newStatus
-    console.log(newStatus, oldStatus)
+    console.log(newStatus, oldStatus, 111111111111)
   }
 }
  export default  IatRecorder
