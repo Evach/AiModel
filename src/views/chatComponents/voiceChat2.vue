@@ -5,12 +5,11 @@
       class="dialogWrapper"
       @close="handleClose"
   >
-    <wake-up @wakeUp="handleChat"/>
 
     <div class="chatWrapper">
       <div class="instruct" >您的指令是： <span >{{textData}}</span>
-        <v-md-editor v-model="textRes" height="400px" />
-<!--        <v-md-preview :text="textRes" />-->
+<!--        <v-md-editor v-model="textRes" height="400px"></v-md-editor>-->
+        <v-md-preview :text="textRes" ></v-md-preview>
       </div>
       <canvas ref="canvas" class="canvas"></canvas>
 
@@ -47,8 +46,9 @@ import mp3 from './1.mp3'
 import IatRecorder from '@/utils/IatRecorder.js'
 import axios from "axios";
 import XunfeiReader from '@/utils/js/index'
-import  { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event-source";
-import WakeUp from "@/views/chatComponents/wakeUp.vue";
+
+
+
 defineOptions({
   name: 'VoiceChat',
 })
@@ -69,6 +69,8 @@ const start = ref(true)
 const textData = ref('')
 const textRes = ref('')
 
+
+
 // 录音开始
 const startListen = ()=>{
   textData.value = ''
@@ -83,87 +85,41 @@ const startListen = ()=>{
       clearInterval(count)
     }
   }, 1000)
-  iatRecorder.onWillStatusChange = function(oldStatus, newStatus){
-    if(newStatus==='end') {
-      console.log('结束听写', this.text)
-      askWenxin(this.text)
-    }
-  }
-  // iatRecorder.onTextChange = function (text) {
-  //   console.log('text-----------', text)
-  //   let inputText = text
-  //   textData.value = inputText.substring(0, inputText.length - 1) //文字处理，因为不知道为什么识别输出的后面都带‘。’，这个方法是去除字符串最后一位
-  //   iatRecorder.stop()
-  //   askWenxin(text)
-  // }
 }
 // 录音结束
 const startListenT = () => {
-
-  setTimeout(() => {
+  iatRecorder.onTextChange = function (text) {
+    console.log('text', text)
+    let inputText = text
+    textData.value = inputText.substring(0, inputText.length - 1) //文字处理，因为不知道为什么识别输出的后面都带‘。’，这个方法是去除字符串最后一位
     iatRecorder.stop()
-  }, 1000)
-
-  // iatRecorder.onTextChange = function (text) {
-  //   console.log('text', text)
-  //   let inputText = text
-  //   textData.value = inputText.substring(0, inputText.length - 1) //文字处理，因为不知道为什么识别输出的后面都带‘。’，这个方法是去除字符串最后一位
-  //   iatRecorder.stop()
-  //   askWenxin(text)
-  // }
+    askWenxin(text)
+  }
 }
 
-const askWenxin = async (mes)=>{
-  textData.value = mes
-  console.log(9999999999, mes)
-
-  const parmas = {
-    conv_uid: '49cff5ea-97f2-11ee-a134-5405dbf57f3c',
-    user_input: mes,
-    model_name: 'wenxin_proxyllm',
-    chat_mode: 'chat_normal',
-    select_param: ''
-  };
-  // console.log('process.env.VITE_APP_API_BASE_URL',process.env.VITE_APP_API_BASE_URL)
-  try {
-    await fetchEventSource(`http://192.168.0.99:5000/api/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(parmas),
-      openWhenHidden: true,
-      async onopen(response) {
-        if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
-          return;
-        }
-      },
-      onclose() {
-
-      },
-      onerror(err) {
-        console.log('err', err)
-        throw new Error(err);
-      },
-      onmessage: (event) => {
-        const message = event.data?.replaceAll('\\n', '\n');
-        if (message === '[DONE]') {
-          // historyList.value.push('')
-        } else if (message?.startsWith('[ERROR]')) {
-          // textRes.value = message?.replace('[ERROR]', '')
-          // XunfeiReader(textRes.value)
-        } else {
-          console.log('message', message)
-          textRes.value = message
-        }
-      },
-    });
-    XunfeiReader(textRes.value)
-  } catch (err) {
-
-    console.log('Sorry, We meet some error, please try agin later.');
-  }
-
+const askWenxin = (mes)=>{
+  axios.post("https://lfz4dexaiad3c9ac.aistudio-hub.baidu.com/chat/completions",{
+    "messages": [
+      {
+        "role": "user",
+        "content": mes
+      }
+    ]
+  },{headers: {
+      "Authorization": "token 8a39dd589e063378a89150c47f089c0edd21942c",
+      "Content-Type": "application/json"
+    }}).then(res=>{
+    if(res.status === 200){
+      //json是返回的response提供的一个方法,会把返回的json字符串反序列化成对象,也被包装成一个Promise了
+      console.log('res',res)
+      textRes.value = res.data.result
+      XunfeiReader(textRes.value)
+      // startRead()
+      // vmsTextDriver()
+    }else{
+      return {}
+    }
+  });
 }
 
 const speak = (text) => {
@@ -174,11 +130,11 @@ const speak = (text) => {
 const handleChat = () => {
   if (start.value) {
     startListen()
+
     start.value = false
   } else {
     startListenT()
     start.value = true
-
   }
 }
 

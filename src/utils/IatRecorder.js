@@ -230,6 +230,7 @@ class IatRecorder {
   }
   // 暂停录音
   recorderStop() {
+
     // safari下suspend后再次resume录音内容将是空白，设置safari下不做suspend
     if (!(/Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent))){
       // 方法暂停音频上下文对象中的进度
@@ -364,10 +365,12 @@ class IatRecorder {
   }
   stop() {
     this.recorderStop()
+
   }
   onTextChange = function (results){
     this.text = results
   }
+
   onWillStatusChange = function (oldStatus, newStatus){
     console.log(newStatus, 'onWillStatusChange')
     this.statusJudge = newStatus

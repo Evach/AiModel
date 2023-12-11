@@ -31,7 +31,10 @@ export default defineConfig(({ mode }: ConfigEnv) => {
         },
       },
     },
-    port: 150000,
+
+    devServer:{
+      port: 150000,
+    },
     plugins: [
       vue({
         // 默认开启响应性语法糖

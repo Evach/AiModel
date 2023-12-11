@@ -78,8 +78,8 @@ function connectWebSocket(readText) {
       business: {
         aue: "raw",
         auf: "audio/L16;rate=16000",
-        vcn: 'xiaoqi',
-        // vcn: 'xiaofeng',
+        // vcn: 'xiaoqi',
+        vcn: 'xiaofeng',
         speed: 50,
         volume: 50,
         pitch: 50,
