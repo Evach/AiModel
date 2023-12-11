@@ -10,6 +10,7 @@ import Components from 'unplugin-vue-components/vite'
 export default defineConfig(({ mode }: ConfigEnv) => {
   const env = loadEnv(mode, process.cwd())
   return {
+
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
@@ -30,6 +31,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
         },
       },
     },
+    port: 150000,
     plugins: [
       vue({
         // 默认开启响应性语法糖

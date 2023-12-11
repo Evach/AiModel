@@ -7,26 +7,44 @@
   >
 
     <div class="chatWrapper">
-      <div class="instruct" v-if="isStart">您的指令是： <p style="font-size: 18px">决定是否就可回收废旧手机和微软等哈觉得大家还记得</p></div>
+      <div class="instruct" >您的指令是： <span >{{textData}}</span>
+        <pre>{{textRes}}</pre>
+      </div>
       <canvas ref="canvas" class="canvas"></canvas>
 
-      <div class="btnOut" @click="openAudio">
+      <div class="btnOut" @click="handleChat"  >
+
         <img src="../../assets/huatong.png"
              width="68">
+        <p class="btnText">{{start?'开始':'结束'}}</p>
+
       </div>
 
+      <div  class="musical-scale">
+        <div class="scale">
+          <div class="em" v-for="(item,index) in 15" :key="index"></div>
+        </div>
+      </div>
+
+<!--      <p ref="status"></p>-->
+<!--      <p ref="output"></p>-->
 
       <audio ref="audio" style="display: none" :src="mp3" @play="play" @pause="audioEnded" @ended="audioEnded"
              controls></audio>
+
+
+
     </div>
 
 
   </el-dialog>
 </template>
 
-<script setup lang="ts">
+<script setup >
 import mp3 from './1.mp3'
-
+import IatRecorder from '@/utils/IatRecorder.js'
+import axios from "axios";
+import XunfeiReader from '@/utils/js/index'
 defineOptions({
   name: 'VoiceChat',
 })
@@ -36,8 +54,96 @@ const canvas = ref()
 const dialogVisible = ref(false)
 const audCon = ref()
 const source = ref()
+
+const APPID = 'fe55ce9c'
+const API_SECRET = 'NDQ0YWU5OTIwNTU0YTQwYTc5ZDY3YjM5'
+const API_KEY = '64289189a3ec355895b97b8654213155'
+const iatRecorder = reactive(new IatRecorder())
+
+
+const start = ref(true)
+const textData = ref('')
+const textRes = ref('')
+
+
+
+// 录音开始
+const startListen = ()=>{
+  textData.value = ''
+  // Observe.observe('event',log)
+  iatRecorder.start()
+  let seconds = 0
+  const count = setInterval(() => {
+    seconds++
+    if (seconds >= 60) {
+      iatRecorder.stop()
+      start.value = true
+      clearInterval(count)
+    }
+  }, 1000)
+}
+// 录音结束
+const startListenT = () => {
+  iatRecorder.onTextChange = function (text) {
+    console.log('text', text)
+    let inputText = text
+    textData.value = inputText.substring(0, inputText.length - 1) //文字处理，因为不知道为什么识别输出的后面都带‘。’，这个方法是去除字符串最后一位
+    iatRecorder.stop()
+    askWenxin(text)
+  }
+}
+
+const askWenxin = (mes)=>{
+  axios.post("https://lfz4dexaiad3c9ac.aistudio-hub.baidu.com/chat/completions",{
+    "messages": [
+      {
+        "role": "user",
+        "content": mes
+      }
+    ]
+  },{headers: {
+      "Authorization": "token 8a39dd589e063378a89150c47f089c0edd21942c",
+      "Content-Type": "application/json"
+    }}).then(res=>{
+    if(res.status === 200){
+      //json是返回的response提供的一个方法,会把返回的json字符串反序列化成对象,也被包装成一个Promise了
+      console.log('res',res)
+      textRes.value = res.data.result
+      XunfeiReader(textRes.value)
+      // startRead()
+      // vmsTextDriver()
+    }else{
+      return {}
+    }
+  });
+}
+
+const speak = (text) => {
+  const msg = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.speak(msg);
+}
+
+const handleChat = () => {
+  if (start.value) {
+    startListen()
+
+    start.value = false
+  } else {
+    startListenT()
+    start.value = true
+  }
+}
+
+
 const handleShow = () => {
   dialogVisible.value = true
+   nextTick(()=>{
+
+    // init()
+    // audio.value.play()
+    // isStart.value = true
+  })
+
 }
 const handleClose = () => {
   dialogVisible.value = false
@@ -45,16 +151,7 @@ const handleClose = () => {
 
 // 定义数组和音频分析器
 let dataArray = ref(), analyser = ref()
-watch(
-    () => dialogVisible.value,
-    (dialogVisible) => {
-      console.log(dialogVisible)
-      nextTick(() => {
-        init()
 
-      })
-    }
-)
 
 const init = () => {
   // 初始化
@@ -66,7 +163,7 @@ const init = () => {
   source.value = audCon.value.createMediaElementSource(audio.value) // 创建音频源节点
 }
 
-const isStart = ref(false)
+
 
 const openAudio = () => {
   if (isStart.value) {
@@ -177,10 +274,17 @@ defineExpose({
   transform: translate(-50%, -50%);
   cursor: pointer;
   opacity: .8;
+  z-index: 9;
+  .btnText{
+    color: #fff;
+    text-align: center;
+    margin: 10px 0 0;
+    font-size: 18px;
+  }
 }
 
 .instruct {
-  width: 280px;
+  min-width: 300px;
   padding: 10px;
   color: rgba(255,255,255,.9);
   font-size: 16px;
@@ -188,5 +292,98 @@ defineExpose({
   letter-spacing: 1px;
   //margin: 0 auto;
   //transform: translateY(100px);
+}
+
+
+
+
+.musical-scale {
+  position: absolute;
+  top: 36%;
+  left: 27%;
+  width: 80%;
+  height: 96px;
+  border-radius: 48px;
+  z-index: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .scale {
+    width: 65%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .em {
+      display: block;
+      background: #16a98a;
+      width: 4px;
+      height: 10%;
+      float: left;
+
+      &:last-child {
+        margin-right: 0px;
+      }
+
+      &:nth-child(1),
+      &:nth-child(15) {
+        animation: load 2.5s 1.4s infinite linear;
+      }
+
+      &:nth-child(2),
+      &:nth-child(14) {
+        animation: load 2.5s 1.2s infinite linear;
+      }
+
+      &:nth-child(3),
+      &:nth-child(13) {
+        animation: load 2.5s 1s infinite linear;
+      }
+
+      &:nth-child(4),
+      &:nth-child(12) {
+        animation: load 2.5s 0.8s infinite linear;
+      }
+
+      &:nth-child(5),
+      &:nth-child(11) {
+        animation: load 2.5s 0.6s infinite linear;
+      }
+
+      &:nth-child(6),
+      &:nth-child(10) {
+        animation: load 2.5s 0.4s infinite linear;
+      }
+
+      &:nth-child(7),
+      &:nth-child(9) {
+        animation: load 2.5s 0.2s infinite linear;
+      }
+
+      &:nth-child(8) {
+        animation: load 2.5s 0s infinite linear;
+        opacity: 0;
+      }
+
+      @keyframes load {
+        0% {
+          height: 10%;
+        }
+
+        50% {
+          height: 100%;
+        }
+
+        100% {
+          height: 10%;
+        }
+
+      }
+    }
+  }
 }
 </style>
