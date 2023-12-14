@@ -29,6 +29,18 @@ export default defineConfig(({ mode }: ConfigEnv) => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, ''),
         },
+        '/wenxin': {
+          target: 'https://lfz4dexaiad3c9ac.aistudio-hub.baidu.com', // 代理的目标地址
+          changeOrigin: true, // 搭建代理服务器，开启代理
+          // secure: true, // 是否代理https接口
+          // ws: true, // 是否代理websockets
+          // rewrite: path => path.replace('', '') // 不用路径重写
+        },
+        '/vmss': {
+          target: 'http://vms.cn-huadong-1.xf-yun.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/vmss/, '')
+        }
       },
     },
 

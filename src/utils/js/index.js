@@ -47,7 +47,7 @@ function encodeText(text, type) {
 }
 
 let ttsWS;
-function connectWebSocket(readText) {
+function XunfeiReader(readText) {
   const url = getWebSocketUrl(API_KEY, API_SECRET);
   if ("WebSocket" in window) {
     ttsWS = new WebSocket(url);
@@ -114,8 +114,16 @@ function connectWebSocket(readText) {
     console.error(e);
   };
   ttsWS.onclose = (e) => {
-    // console.log(e);
+    console.log('close', e);
   };
 }
 
-export default connectWebSocket
+function pause(){
+  audioPlayer.stop()
+}
+
+function play(){
+  audioPlayer.play()
+}
+
+export {XunfeiReader, pause, play}

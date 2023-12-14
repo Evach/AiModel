@@ -23,13 +23,14 @@
 // ps: 该示例用到了es6中的一些语法，建议在chrome下运行
 
 import CryptoJS from 'crypto-js'
-// import './jquery.js'
+import './jquery.js'
 import TransWorker from './transcode?worker'
 let transWorker = new TransWorker()
 //APPID，APISecret，APIKey在控制台-我的应用-语音听写（流式版）页面获取
-const APPID = 'fe55ce9c'
-const API_SECRET = 'NDQ0YWU5OTIwNTU0YTQwYTc5ZDY3YjM5'
-const API_KEY = '64289189a3ec355895b97b8654213155'
+
+const APPID = '5b8a1386'
+const API_SECRET = 'ODJiYmMwZDgwMWNmZTM0NGQ0ODg1ZWFk'
+const API_KEY = '541cebef8dba06869627f5e3bc2d8c2f'
 
 /**
  * 获取websocket url
@@ -268,7 +269,7 @@ class IatRecorder {
         language: this.language, //小语种可在控制台--语音听写（流式）--方言/语种处添加试用
         domain: 'iat', // 日常用语
         accent: this.accent, //中文方言可在控制台--语音听写（流式）--方言/语种处添加试用
-        vad_eos: 1500,
+        vad_eos: 1000,
         dwa: 'wpgs', //为使该功能生效，需到控制台开通动态修正功能（该功能免费）
       },
       data: {

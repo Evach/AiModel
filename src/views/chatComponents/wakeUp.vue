@@ -8,7 +8,7 @@ const initWebsocket = () => {
     const tenantId = 200
     const username = 'hecq'
     const workCenterCode = '01'
-    let url = `ws://mes-change-test.gondor.cpolar.top/gateway/socket/websocket/${tenantId},${username},${workCenterCode}`;
+    let url = `ws://192.168.0.202:9979/websocket/${tenantId},${username},${workCenterCode}`;
     // app端不支持replaceAll
     const ws = url.indexOf('wss://') === 0 ? 'wss://' : 'ws://';
     url = ws + url.replace(ws, '').replace('http://', '').replace('https://', '').replace('//', '/');
@@ -40,10 +40,4 @@ onMounted(()=>{
 })
 </script>
 
-<template>
 
-</template>
-
-<style scoped lang="scss">
-
-</style>
