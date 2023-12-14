@@ -50,7 +50,8 @@ export default defineConfig(({ mode }: ConfigEnv) => {
     plugins: [
       vue({
         // 默认开启响应性语法糖
-        reactivityTransform: true,
+        // reactivityTransform: true,
+        reactivityTransform: resolve(__dirname, 'src'),
       }),
       AutoImport({
         resolvers: [ElementPlusResolver()],
